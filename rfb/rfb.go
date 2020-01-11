@@ -101,7 +101,7 @@ func (s *Server) Serve(ln net.Listener) error {
 }
 
 func (s *Server) newConn(c net.Conn) *Conn {
-	feed := make(chan *LockableImage, 16)
+	feed := make(chan *LockableImage)
 	event := make(chan interface{}, 16)
 	conn := &Conn{
 		s:      s,
@@ -280,9 +280,11 @@ func (c *Conn) serve() {
 	c.flush()
 
 	for {
-		//log.Printf("awaiting command byte from client...")
+		// log.Println("------------------------------------")
+		// log.Printf("awaiting command byte from client...\n")
 		cmd := c.readByte("6.4:client-server-packet-type")
-		//log.Printf("got command type %d from client", int(cmd))
+		// log.Printf("got command type %d from client\n", int(cmd))
+
 		switch cmd {
 		case cmdSetPixelFormat:
 			c.handleSetPixelFormat()
@@ -295,8 +297,12 @@ func (c *Conn) serve() {
 		case cmdKeyEvent:
 			c.handleKeyEvent()
 		default:
-			c.failf("unsupported command type %d from client", int(cmd))
+			log.Printf("unsupported command type %d from client", int(cmd))
+			//c.failf("unsupported command type %d from client", int(cmd))
 		}
+
+		// log.Println("------------------------------------")
+
 	}
 }
 
